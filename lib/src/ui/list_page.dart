@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:randomapp/main.dart';
 import 'package:randomapp/src/bloc_provider.dart';
 import 'package:randomapp/src/const.dart';
@@ -40,7 +39,7 @@ class _ListPageState extends State<ListPage> {
     return StreamBuilder(
         stream: _mainBloc.getListStream,
         builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-          List<String> list = snapshot.data;
+          List<String> list = snapshot.data ?? [];
           return Scaffold(
               appBar: buildAppBar(actions: [_buildMenuButton(context)]),
               backgroundColor: colorLight,

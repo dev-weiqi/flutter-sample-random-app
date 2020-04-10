@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-
-import 'package:randomapp/main.dart';
+import 'package:flutter/material.dart';import 'package:randomapp/main.dart';
 import 'package:randomapp/src/bloc_provider.dart';
 import 'package:randomapp/src/const.dart';
 import 'package:randomapp/src/main_bloc.dart';
@@ -34,12 +32,19 @@ class _AddPageState extends State<AddPage> {
         appBar: buildAppBar(title: '新增名稱'),
         backgroundColor: colorLight,
         body: Container(
-            alignment: Alignment.center,
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          padding:EdgeInsets.symmetric(vertical: 24,horizontal: 8),
+            child: Column(
+          children: <Widget>[
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Expanded(flex: 8, child: _buildInput()),
               Expanded(flex: 2, child: _buildConfirm(context))
-            ])));
+            ]),
+            Text(
+              '＊ 可使用逗號 "," 來新增多筆資料',
+              style: TextStyle(color: Colors.black),
+            )
+          ],
+        )));
   }
 
   Widget _buildConfirm(BuildContext context) {
@@ -90,13 +95,17 @@ class _AddPageState extends State<AddPage> {
   }
 
   void _save(BuildContext context, String name) {
+    List<String> nameList = name.split(',');
+
     List<String> list = _mainBloc.list;
-    if (list.contains(name)) {
-      showToast(context, '已有相同的名稱！');
-      return;
+    if (nameList.isEmpty) {
+      list.add(name);
+    } else {
+      nameList.forEach((name) {
+        list.add(name);
+      });
     }
 
-    list.add(_controller.text);
     _mainBloc.setList(list);
     Navigator.pop(context, true);
   }
