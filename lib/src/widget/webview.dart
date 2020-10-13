@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:randomapp/main.dart';
+import 'package:randomapp/src/main.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
 

@@ -2,31 +2,21 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:randomapp/main.dart';
-import 'package:randomapp/src/bloc_provider.dart';
-import 'package:randomapp/src/const.dart';
-import 'package:randomapp/src/main_bloc.dart';
-import 'package:randomapp/src/ui/add_page.dart';
-import 'package:randomapp/src/ui/webview.dart';
+import 'package:provider/provider.dart';
 
-class ListPage extends StatefulWidget {
-  const ListPage({Key key}) : super(key: key);
+import '../public.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key key}) : super(key: key);
 
   @override
-  _ListPageState createState() => _ListPageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _ListPageState extends State<ListPage> {
+class _HomePageState extends State<HomePage> {
   double _itemHeight = 60;
   ScrollController _controller = ScrollController();
-  int _lastSelectedIndex = -1;
-  MainBloc _mainBloc;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _mainBloc = BlocProvider.of(context);
-  }
+  int _lastSelectedIndex = unknownIndex;
 
   @override
   void dispose() {
@@ -36,42 +26,40 @@ class _ListPageState extends State<ListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: _mainBloc.getListStream,
-        builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-          List<String> list = snapshot.data ?? [];
-          return Scaffold(
-              appBar: buildAppBar(actions: [_buildMenuButton(context)]),
-              backgroundColor: colorLight,
-              body: ListView.builder(
-                itemCount: list.length,
-                itemBuilder: (BuildContext context, int index) {
-                  Color bgColor = index % 2 == 0 ? Colors.white : colorLight;
-                  return Dismissible(
-                      onDismissed: (direction) {
-                        _lastSelectedIndex = -1;
-                        _onItemDelete(index);
-                      },
-                      key: UniqueKey(),
+    return Consumer<MainBloc>(builder: (context, bloc, child) {
+      List<String> list = bloc.list;
+      return Scaffold(
+          appBar: buildAppBar(actions: [_buildMenuButton(context)]),
+          backgroundColor: colorLight,
+          body: ListView.builder(
+            itemCount: list.length,
+            itemBuilder: (BuildContext context, int index) {
+              Color bgColor = index % 2 == 0 ? Colors.white : colorLight;
+              return Dismissible(
+                  onDismissed: (direction) {
+                    _lastSelectedIndex = unknownIndex;
+                    bloc.removeByIndex(index);
+                  },
+                  key: UniqueKey(),
 
-                      /// 只允許左滑
-                      direction: DismissDirection.endToStart,
+                  /// 只允許左滑
+                  direction: DismissDirection.endToStart,
 
-                      /// 左滑刪除樣式
-                      background: Container(
-                          color: Colors.red,
-                          child: ListTile(
-                              trailing: Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                          ))),
-                      child: Container(
-                          color: bgColor, child: _buildListBody(list, index)));
-                },
-                controller: _controller,
-              ),
-              floatingActionButton: _buildFAB());
-        });
+                  /// 左滑刪除樣式
+                  background: Container(
+                      color: Colors.red,
+                      child: ListTile(
+                          trailing: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ))),
+                  child: Container(
+                      color: bgColor, child: _buildListBody(list, index)));
+            },
+            controller: _controller,
+          ),
+          floatingActionButton: _buildFAB(list));
+    });
   }
 
   Widget _buildMenuButton(BuildContext context) {
@@ -109,14 +97,14 @@ class _ListPageState extends State<ListPage> {
     );
   }
 
-  Widget _buildFAB() {
+  Widget _buildFAB(List<String> list) {
     double size = 80;
     return Container(
         width: size,
         height: size,
         child: FloatingActionButton(
           onPressed: () {
-            _buildDialog(context, _mainBloc.list);
+            _buildDialog(context, list);
           },
           child: Icon(
             Icons.sync,
@@ -172,11 +160,5 @@ class _ListPageState extends State<ListPage> {
     setState(() {
       _lastSelectedIndex = index;
     });
-  }
-
-  void _onItemDelete(int index) async {
-    List<String> list = List.from(_mainBloc.list);
-    list.removeAt(index);
-    _mainBloc.setList(list);
   }
 }

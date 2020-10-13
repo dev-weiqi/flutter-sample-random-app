@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'const.dart';
+import '../const/const.dart';
 
 class SpUtil {
   SpUtil._();

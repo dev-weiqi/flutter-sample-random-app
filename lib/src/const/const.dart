@@ -11,3 +11,5 @@ const List<String> defList = [
   'Black widow',
   'Hawkeye'
 ];
+
+const unknownIndex = -1;

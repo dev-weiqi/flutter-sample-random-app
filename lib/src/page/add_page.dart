@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';import 'package:randomapp/main.dart';
-import 'package:randomapp/src/bloc_provider.dart';
-import 'package:randomapp/src/const.dart';
-import 'package:randomapp/src/main_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:randomapp/src/utils/toast_util.dart';
+
+import '../public.dart';
 
 class AddPage extends StatefulWidget {
   AddPage({Key key}) : super(key: key);
@@ -12,13 +13,6 @@ class AddPage extends StatefulWidget {
 
 class _AddPageState extends State<AddPage> {
   TextEditingController _controller = TextEditingController();
-  MainBloc _mainBloc;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _mainBloc = BlocProvider.of(context);
-  }
 
   @override
   void dispose() {
@@ -32,19 +26,19 @@ class _AddPageState extends State<AddPage> {
         appBar: buildAppBar(title: '新增名稱'),
         backgroundColor: colorLight,
         body: Container(
-          padding:EdgeInsets.symmetric(vertical: 24,horizontal: 8),
+            padding: EdgeInsets.symmetric(vertical: 24, horizontal: 8),
             child: Column(
-          children: <Widget>[
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Expanded(flex: 8, child: _buildInput()),
-              Expanded(flex: 2, child: _buildConfirm(context))
-            ]),
-            Text(
-              '＊ 可使用逗號 "," 來新增多筆資料',
-              style: TextStyle(color: Colors.black),
-            )
-          ],
-        )));
+              children: <Widget>[
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Expanded(flex: 8, child: _buildInput()),
+                  Expanded(flex: 2, child: _buildConfirm(context))
+                ]),
+                Text(
+                  '＊ 可使用逗號 "," 來新增多筆資料',
+                  style: TextStyle(color: Colors.black),
+                )
+              ],
+            )));
   }
 
   Widget _buildConfirm(BuildContext context) {
@@ -65,12 +59,18 @@ class _AddPageState extends State<AddPage> {
               String input = _controller.text;
 
               if (input.isEmpty) {
-                showToast(context, '請輸入名稱！');
-              } else if (input == 'reset') {
-                _reset(context);
-              } else {
-                _save(context, input);
+                ToastUtil.showToast(context, '請輸入名稱！');
+                return;
               }
+
+              MainBloc mainBloc = Provider.of(context);
+              if (input == 'reset') {
+                mainBloc.setData(defList);
+              } else {
+                mainBloc.addMultiData(input);
+              }
+
+              Navigator.pop(context, true);
             }));
   }
 
@@ -92,26 +92,5 @@ class _AddPageState extends State<AddPage> {
                   contentPadding: EdgeInsets.all(10),
                   prefixIcon: Icon(Icons.edit)))),
     );
-  }
-
-  void _save(BuildContext context, String name) {
-    List<String> nameList = name.split(',');
-
-    List<String> list = _mainBloc.list;
-    if (nameList.isEmpty) {
-      list.add(name);
-    } else {
-      nameList.forEach((name) {
-        list.add(name);
-      });
-    }
-
-    _mainBloc.setList(list);
-    Navigator.pop(context, true);
-  }
-
-  void _reset(BuildContext context) {
-    _mainBloc.setList(defList);
-    Navigator.pop(context, true);
   }
 }

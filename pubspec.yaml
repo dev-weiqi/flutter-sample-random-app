@@ -17,10 +17,11 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
-  shared_preferences: ^0.5.3
+  shared_preferences: ^0.5.10
   fluttertoast: ^3.1.0
   webview_flutter: ^0.3.17
-  rxdart: ^0.22.0
+  provider: ^4.3.2+1
+  image: ^2.1.17
 
   flutter:
     sdk: flutter
